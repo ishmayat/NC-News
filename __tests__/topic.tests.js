@@ -47,3 +47,14 @@ describe("GET /api/topics", () => {
       });
   });
 });
+describe("GET /api", () => {
+  test("Responds with a JSON object describing all the available endpoints.", () => {
+    return request(app)
+      .get("/api")
+      .then((response) => {
+        // console.log(response.body, "<--- GET /api response");
+        expect(200);
+        expect(response.body).toEqual(expectedEndPoints);
+      });
+  });
+});
