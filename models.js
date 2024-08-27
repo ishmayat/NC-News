@@ -12,4 +12,29 @@ const fetchAllTopics = (sort_by = "slug") => {
   });
 };
 
-module.exports = { fetchAllTopics };
+const fetchArticleById = (article_id) => {
+  return db
+    .query(
+      `SELECT 
+        author,
+        body,
+        title,
+        article_id,
+        topic,
+        created_at,
+        votes,
+        article_img_url,
+        (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id) AS comment_count 
+        FROM articles 
+        WHERE article_id = $1`,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ msg: "Not Found" });
+      }
+      return rows[0];
+    });
+};
+
+module.exports = { fetchAllTopics, fetchArticleById };
