@@ -47,7 +47,7 @@ describe("GET /api/topics", () => {
       });
   });
 });
-describe.only("GET /api", () => {
+describe("GET /api", () => {
   test("Responds with a JSON object describing all the available endpoints.", () => {
     return request(app)
       .get("/api")
