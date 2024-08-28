@@ -72,7 +72,7 @@ describe("GET /api/articles/:articles_id", () => {
       .get("/api/articles/1")
       .expect(200)
       .then((response) => {
-        console.log(response.body, "<---- GET /article");
+        //console.log(response.body, "<---- GET /article");
         // console.log(response.body.article.created_at, "<---- typeof created_at");
         const { article } = response.body;
         expect(article).toMatchObject({
@@ -102,6 +102,35 @@ describe("GET /api/articles/:articles_id", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Not Found");
+      });
+  });
+});
+describe("GET /api/articles", () => {
+  test("Responds with an array of all articles object", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        const articles = body.articles;
+        expect(Array.isArray(articles)).toBe(true);
+      });
+  });
+  test("Responds with an array of correct data types", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        //console.log(body, "<----- GET /api response");
+        const articles = body.articles;
+        articles.forEach((article) => {
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.comment_count).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.topic).toBe("string");
+        });
       });
   });
 });
