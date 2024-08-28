@@ -170,3 +170,51 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+describe("POST /api/articles/:article_id/comments", () => {
+  test("Responds with the posted comment", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({
+        username: "icellusedkars",
+        body: "maybe, just maybe.",
+      })
+      .expect(201)
+      .then((response) => {
+        expect(response.body).toEqual({
+          postedComment: "maybe, just maybe.",
+        });
+      });
+  });
+  test("404: responds with message when given non-existent id", () => {
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send({
+        username: "icellusedkars",
+        body: "maybe the number is 999.",
+      })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
+      });
+  });
+  test("400: Bad request, INVALID id", () => {
+    return request(app)
+      .post("/api/articles/invalid_id/comments")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("Responds with required properties", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({
+        username: "icellusedkars",
+        body: "maybe, just maybe.",
+      })
+      .expect(201)
+      .then((response) => {
+        expect(response.body).toHaveProperty("postedComment");
+      });
+  });
+});
