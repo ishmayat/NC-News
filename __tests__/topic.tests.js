@@ -28,7 +28,6 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
-        // console.log(body, "GET /api response");
         const topics = body.topics;
         expect(topics).toEqual([
           { slug: "mitch", description: "The man, the Mitch, the legend" },
@@ -42,7 +41,6 @@ describe("GET /api/topics", () => {
       .get("/api/topicks")
       .expect(404)
       .then((response) => {
-        // console.log(response, "<--- response message");
         expect(response.body.msg).toBe("Route/endpoint not found");
       });
   });
@@ -52,7 +50,6 @@ describe("GET /api", () => {
     return request(app)
       .get("/api")
       .then((response) => {
-        // console.log(response.body, "<--- GET /api response");
         expect(200);
         expect(response.body).toEqual(expectedEndPoints);
       });
@@ -72,8 +69,6 @@ describe("GET /api/articles/:articles_id", () => {
       .get("/api/articles/1")
       .expect(200)
       .then((response) => {
-        //console.log(response.body, "<---- GET /article");
-        // console.log(response.body.article.created_at, "<---- typeof created_at");
         const { article } = response.body;
         expect(article).toMatchObject({
           article_id: 1,
@@ -120,7 +115,6 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        //console.log(body, "<----- GET /api response");
         const articles = body.articles;
         articles.forEach((article) => {
           expect(typeof article.article_id).toBe("number");
@@ -130,6 +124,48 @@ describe("GET /api/articles", () => {
           expect(typeof article.created_at).toBe("string");
           expect(typeof article.title).toBe("string");
           expect(typeof article.topic).toBe("string");
+        });
+      });
+  });
+});
+describe("GET /api/articles/:article_id/comments", () => {
+  test("Responds with an array of comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+      });
+  });
+  test("404: responds with message when given non-existent id.", () => {
+    return request(app)
+      .get("/api/articles/99999/comments")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
+      });
+  });
+  test("400: Bad request, INVALID id", () => {
+    return request(app)
+      .get("/api/articles/invalid_id/comments")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("Responds with an array of comments with the required properties", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const comments = body.comments;
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("article_id");
         });
       });
   });

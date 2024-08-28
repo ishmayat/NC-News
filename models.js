@@ -33,15 +33,14 @@ const fetchAllArticles = (data) => {
         votes,
         article_img_url,
         (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id) AS comment_count
-        FROM articles`;
+        FROM articles
+        WHERE body IS NULL 
+        ORDER BY created_at DESC`;
 
   if (data) {
     query += ` WHERE topic = $1 ORDER BY created_at DESC`;
     return db.query(query, [topic]).then((result) => {
-      return result.rows.map((article) => {
-        delete article.body;
-        return article;
-      });
+      return result.rows;
     });
   } else {
     return db.query(query).then((result) => {
@@ -53,4 +52,31 @@ const fetchAllArticles = (data) => {
   }
 };
 
-module.exports = { fetchAllTopics, fetchArticleById, fetchAllArticles };
+const fetchCommentsByArticleId = (article_id) => {
+  return db
+    .query(
+      `SELECT 
+        comment_id, 
+        votes,
+        created_at,
+        author,
+        body,
+        article_id
+        FROM comments WHERE article_id = $1
+        ORDER BY created_at DESC`,
+      [article_id]
+    )
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ msg: "Not Found" });
+      }
+      return result.rows;
+    });
+};
+
+module.exports = {
+  fetchAllTopics,
+  fetchArticleById,
+  fetchAllArticles,
+  fetchCommentsByArticleId,
+};
