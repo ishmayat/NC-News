@@ -217,4 +217,98 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(response.body).toHaveProperty("postedComment");
       });
   });
+  describe("PATCH /api/articles/:article_id", () => {
+    test("Responds with votes(+) updated in the patched article", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({
+          inc_votes: 5,
+        })
+        .expect(201)
+        .then((response) => {
+          expect(response.body.article[0]).toMatchObject({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 105,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+    test("Responds with votes(-) updated in the patched article", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({
+          inc_votes: -10,
+        })
+        .expect(201)
+        .then((response) => {
+          expect(response.body.article[0]).toMatchObject({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 90,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+    test("404: responds with message when given non-existent id", () => {
+      return request(app)
+        .patch("/api/articles/64000")
+        .send({
+          inc_votes: -10,
+        })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not Found");
+        });
+    });
+    test("400: Bad request, INVALID id", () => {
+      return request(app)
+        .patch("/api/articles/doesthisevenexist")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
+    test("400: Bad request, Incorrect type", () => {
+      return request(app)
+        .patch("/api/articles/invalid_id")
+        .send({
+          inc_votes: "Ten Votes",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
+    test("400: Bad request, Missing Field", () => {
+      return request(app)
+        .patch("/api/articles/invalid_id")
+        .send({})
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
+    test("Responds with required properties", () => {
+      return request(app)
+        .patch("/api/articles/2")
+        .send({
+          inc_votes: 5,
+        })
+        .expect(201)
+        .then((response) => {
+          expect(response.body.article[0]).toHaveProperty("votes");
+        });
+    });
+  });
 });
