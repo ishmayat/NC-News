@@ -4,6 +4,7 @@ const {
   fetchAllArticles,
   fetchCommentsByArticleId,
   insertCommentsByArticleId,
+  updateArticleByArticleId,
 } = require("./models");
 
 const getAllTopics = (req, res) => {
@@ -67,10 +68,27 @@ const postCommentsByArticleId = (req, res, next) => {
     });
 };
 
+const patchArticleByArticleId = (req, res, next) => {
+  const { inc_votes } = req.body;
+  const article_id = req.params.article_id;
+
+  fetchArticleById(article_id)
+    .then(() => {
+      return updateArticleByArticleId(article_id, inc_votes);
+    })
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getAllTopics,
   getArticleById,
   getAllArticles,
   getCommentsByArticleId,
   postCommentsByArticleId,
+  patchArticleByArticleId,
 };
