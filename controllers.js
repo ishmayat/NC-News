@@ -5,6 +5,7 @@ const {
   fetchCommentsByArticleId,
   insertCommentsByArticleId,
   updateArticleByArticleId,
+  removeCommentByCommentId,
 } = require("./models");
 
 const getAllTopics = (req, res) => {
@@ -84,6 +85,18 @@ const patchArticleByArticleId = (req, res, next) => {
     });
 };
 
+const deleteCommentByCommentId = (req, res, next) => {
+  const { comment_id } = req.params;
+  removeCommentByCommentId(comment_id)
+    .then(() => {
+      // console.log(comment_id, "<----- Success - removed comment");
+      res.status(204).end();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getAllTopics,
   getArticleById,
@@ -91,4 +104,5 @@ module.exports = {
   getCommentsByArticleId,
   postCommentsByArticleId,
   patchArticleByArticleId,
+  deleteCommentByCommentId,
 };
