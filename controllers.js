@@ -6,6 +6,7 @@ const {
   insertCommentsByArticleId,
   updateArticleByArticleId,
   removeCommentByCommentId,
+  fetchAllUsers,
 } = require("./models");
 
 const getAllTopics = (req, res) => {
@@ -89,8 +90,17 @@ const deleteCommentByCommentId = (req, res, next) => {
   const { comment_id } = req.params;
   removeCommentByCommentId(comment_id)
     .then(() => {
-      // console.log(comment_id, "<----- Success - removed comment");
       res.status(204).end();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+const getAllUsers = (req, res, next) => {
+  fetchAllUsers()
+    .then((users) => {
+      res.status(200).send({ users });
     })
     .catch((err) => {
       next(err);
@@ -105,4 +115,5 @@ module.exports = {
   postCommentsByArticleId,
   patchArticleByArticleId,
   deleteCommentByCommentId,
+  getAllUsers,
 };

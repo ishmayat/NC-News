@@ -19,12 +19,21 @@ The project reinforced GitHub learning and utilised git branching and pull reque
 
 Web Links
 Link to the hosted version on Render https://issh-nc-news.onrender.com/api
-PostgreSQL database is hosted on SupabaseL https://zxtiguqhfypnzklkkohr.supabase.co
+PostgreSQL database is hosted on SupabaseL https://supabase.com
 
 Getting Started
 Fork the repo in GitHub and clone using the git clone command in your terminal. CD into the file you have created and run the following commands:
 
-install node package manager: install node-postgres: $ npm install pg install jest install supertest
+install node package manager:
+install node-postgres:
+$ npm install pg
+install jest
+install supertest
+
+A db folder has also been provided with some data, a setup.sql file and a seeds folder. Run the following commands to connect and setup the databse:
+
+npm run setup-dbs
+npm run seed
 
 To test run the terminal command: npm test psql \c nc_news OR \c nc_news_test SELECT \* from articles/comments/topics/users to check the database connection
 
@@ -49,6 +58,9 @@ Replace <your_database_name> with the actual database name you want to use for t
 3. Running the Project:
 
 Once you've created the environment files and configured them with the appropriate database names, you can run your project using the provided npm scripts.
+
+Environment Minimum Version Requirements
+The minimum versions required of Node.js and Postgres to run the project: Node.js (v20.1.0), PostgreSQL 16.1
 
 ---
 
