@@ -8,6 +8,7 @@ const {
   postCommentsByArticleId,
   patchArticleByArticleId,
   deleteCommentByCommentId,
+  getAllUsers,
 } = require("./controllers");
 const allEndpoints = require("./endpoints.json");
 
@@ -25,6 +26,7 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentsByArticleId);
 app.patch("/api/articles/:article_id", patchArticleByArticleId);
 app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
+app.get("/api/users", getAllUsers);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Route/endpoint not found" });

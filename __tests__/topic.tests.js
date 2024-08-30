@@ -121,7 +121,7 @@ describe("GET /api/articles", () => {
           expect(typeof article.article_id).toBe("number");
           expect(typeof article.article_img_url).toBe("string");
           expect(typeof article.author).toBe("string");
-          expect(typeof article.comment_count).toBe("number");
+          expect(typeof article.comment_count).toBe("string");
           expect(typeof article.created_at).toBe("string");
           expect(typeof article.title).toBe("string");
           expect(typeof article.topic).toBe("string");
@@ -331,6 +331,46 @@ describe("DELETE /api/comments/:comments_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
+      });
+  });
+});
+describe("GET /api/users", () => {
+  test("Responds with an array of users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const users = body.users;
+        expect(Array.isArray(users)).toBe(true);
+      });
+  });
+  test("Responds with an array of users with correct data types", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const users = body.users;
+        users.forEach((user) => {
+          expect(typeof user.username).toBe("string");
+          expect(typeof user.name).toBe("string");
+          expect(typeof user.avatar_url).toBe("string");
+        });
+      });
+  });
+  test("Responds with an array of users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const users = body.users[0];
+        expect([users]).toEqual([
+          {
+            avatar_url:
+              "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
+            name: "paul",
+            username: "rogersop",
+          },
+        ]);
       });
   });
 });

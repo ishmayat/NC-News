@@ -37,12 +37,11 @@ const fetchAllArticles = (topic, sort_by, order) => {
 
   const queryValues = [];
   let queryStr = `
-    SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at,
-           articles.votes, articles.article_img_url,
-           (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id)::INT AS comment_count
-    FROM articles
-    LEFT JOIN comments ON articles.article_id = comments.comment_id
-  `;
+   SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at,
+           articles.votes,
+    articles.article_img_url,
+           COUNT(*) AS comment_count FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
   if (topic) {
     queryValues.push(topic);
@@ -124,6 +123,23 @@ const removeCommentByCommentId = (comment_id) => {
     });
 };
 
+const fetchAllUsers = () => {
+  return db
+    .query(
+      `SELECT 
+        username, 
+        name,
+        avatar_url
+        FROM users
+        ORDER BY username DESC`
+    )
+    .then((result) => {
+      return result.rows.map((users) => {
+        return users;
+      });
+    });
+};
+
 module.exports = {
   fetchAllTopics,
   fetchArticleById,
@@ -132,4 +148,5 @@ module.exports = {
   insertCommentsByArticleId,
   updateArticleByArticleId,
   removeCommentByCommentId,
+  fetchAllUsers,
 };
