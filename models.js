@@ -23,33 +23,83 @@ const fetchArticleById = (article_id) => {
     });
 };
 
-const fetchAllArticles = (topic) => {
-  let query = `SELECT 
-        author, 
-        title,
-        article_id,
-        topic,
-        created_at,
-        votes,
-        article_img_url,
-        (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id) AS comment_count
-        FROM articles
-        WHERE body IS NULL 
-        ORDER BY created_at DESC`;
+// const fetchAllArticles = (topic) => {
+//   let query = `SELECT
+//         author,
+//         title,
+//         article_id,
+//         topic,
+//         created_at,
+//         votes,
+//         article_img_url,
+//         CAST(COUNT(*) AS INTEGER) AS comment_count
+//         FROM articles
+//         WHERE body IS NULL
+//         ORDER BY created_at DESC`;
 
+//   return db.query(query).then((result) => {
+//     return result.rows;
+//   });
+// };
+
+const fetchAllArticles = (topic, sort_by, order) => {
+  let sortByWhitelist = [
+    "article_id",
+    "title",
+    "author",
+    "created_at",
+    "article_img_url",
+    "comment_count",
+    "votes",
+    undefined,
+  ];
+  let orderByWhitelist = ["ASC", "DESC", undefined];
+
+  const queryValues = [];
+  let queryStr = `
+      SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at,
+          articles.votes, articles.article_img_url,
+          (SELECT COUNT(*) FROM comments WHERE comments.article_id = articles.article_id)::INT
+          AS comment_count
+          FROM articles
+          LEFT JOIN comments
+          ON articles.article_id = comments.comment_id
+      `;
   if (topic) {
-    query += ` WHERE topic = $1 ORDER BY created_at DESC`;
-    return db.query(query, [topic]).then((result) => {
-      return result.rows;
-    });
-  } else {
-    return db.query(query).then((result) => {
-      return result.rows.map((article) => {
-        delete article.body;
-        return article;
-      });
-    });
+    queryValues.push(topic);
+    queryStr += "WHERE topic = $1";
   }
+  if (!sort_by) {
+    sort_by = "created_at";
+  }
+  if (!order) {
+    order = "ASC";
+  }
+  if (!sortByWhitelist.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid Sort Term" });
+  }
+  if (!orderByWhitelist.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Invalid Order Term" });
+  }
+  return db
+    .query(
+      `
+          ${queryStr}
+          GROUP BY articles.article_id
+          ORDER BY ${sort_by} ${order}
+          `,
+      queryValues
+    )
+    .then((response) => {
+      if (response.rows.body !== undefined) {
+        return Promise.reject({
+          status: 401,
+          msg: "body should not be included",
+        });
+      } else {
+        return response.rows;
+      }
+    });
 };
 
 const fetchCommentsByArticleId = (article_id) => {
@@ -92,7 +142,7 @@ const updateArticleByArticleId = (article_id, inc_votes) => {
       [inc_votes, article_id]
     )
     .then((result) => {
-      return result.rows;
+      return result.rows[0];
     });
 };
 
